@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Netflix Lite API
+
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  VideoAPI:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures: [x86_64]
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /videos
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: Videos
+
+  VideoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Videos
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
