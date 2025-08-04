@@ -25,4 +25,4 @@ jobs:
         run: |
           cd backend
           sam build
-          echo -e "netflix-lite-stack\nus-east-1\ny\ny\nn\ny\ny\ny" | sam deploy --guided
+          sam deploy --resolve-s3 --resolve-image-repos
