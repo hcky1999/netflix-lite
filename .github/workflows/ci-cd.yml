@@ -25,4 +25,4 @@ jobs:
         run: |
           cd backend
           sam build
-          echo -e "\n\n\n\n\n\n\n\n" | sam deploy --guided
+          echo -e "netflix-lite-stack\nus-east-1\ny\ny\nn\ny\ny\ny" | sam deploy --guided
