@@ -3,8 +3,6 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "netflix-lite-stack"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-netflix-lite"
-s3_prefix = "netflix-lite"
 region = "us-east-1"
 confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
