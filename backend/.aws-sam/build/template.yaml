@@ -9,6 +9,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
+      CodeUri: .
       Architectures:
       - x86_64
       Events:
