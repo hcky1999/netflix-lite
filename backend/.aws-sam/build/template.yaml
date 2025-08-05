@@ -1,15 +1,19 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Netflix Lite API
+Description: "Netflix Lite API \u2013 Docker-based Lambda backend"
 Globals:
   Function:
     Timeout: 10
 Resources:
   VideoAPI:
     Type: AWS::Serverless::Function
+    Metadata:
+      DockerContext: /Users/heckyladiv/Documents/AWSCLOUD/netflix-lite/backend
+      DockerTag: python3.11-v1
+      Dockerfile: Dockerfile
+      SamResourceId: VideoAPI
     Properties:
       PackageType: Image
-      CodeUri: .
       Architectures:
       - x86_64
       Events:
@@ -21,6 +25,7 @@ Resources:
       Policies:
       - DynamoDBReadPolicy:
           TableName: Videos
+      ImageUri: videoapi:python3.11-v1
   VideoTable:
     Type: AWS::DynamoDB::Table
     Properties:

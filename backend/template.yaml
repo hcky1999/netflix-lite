@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Netflix Lite API
+Description: Netflix Lite API – Docker-based Lambda backend
 
 Globals:
   Function:
@@ -9,10 +9,14 @@ Globals:
 Resources:
   VideoAPI:
     Type: AWS::Serverless::Function
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: python3.11-v1
     Properties:
       PackageType: Image
-      CodeUri: .
-      Architectures: [x86_64]
+      Architectures:
+        - x86_64
       Events:
         Api:
           Type: Api

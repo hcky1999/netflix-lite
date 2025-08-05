@@ -4,9 +4,10 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "netflix-lite-stack"
-s3_bucket = "netflix-lite-artifacts"
+s3_bucket = "netflix-lite-api-artifacts-hcky"
 s3_prefix = "sam-artifacts"
 region = "us-east-1"
 confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
+image_repositories = ["VideoAPI=672566183195.dkr.ecr.us-east-1.amazonaws.com/netflix-lite-videoapi"]
 
