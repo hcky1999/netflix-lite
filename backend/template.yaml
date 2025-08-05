@@ -27,7 +27,7 @@ Resources:
   CloudFrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
-      OriginAccessIdentityConfig:
+      CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub 'OAI for ${S3BucketName}'
 
   S3BucketPolicy:
