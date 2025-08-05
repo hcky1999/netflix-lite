@@ -1,7 +1,72 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Netflix Lite API – Docker-based Lambda backend
+yaml
+# Add Tags for better resource management and cost tracking
+Globals:
+  Function:
+    Timeout: 10
+    Tags:
+      Environment: Prod
+      Project: NetflixLite
 
+# Add VersioningConfiguration for S3 bucket to enable versioning
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3BucketName
+      VersioningConfiguration:
+        Status: Enabled
+      # Add encryption for better security
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+# Add security headers for CloudFront
+  CloudFrontDistribution:
+    Properties:
+      DistributionConfig:
+        # Add security headers
+        ResponseHeadersPolicy:
+          SecurityHeadersBehavior:
+            ContentSecurityPolicy:
+              Override: true
+              ContentSecurityPolicy: "default-src 'self'"
+            StrictTransportSecurity:
+              Override: true
+              AccessControlMaxAgeSec: 31536000
+            XSSProtection:
+              Override: true
+              Protection: true
+              ModeBlock: true
+
+# Add DynamoDB backup configuration
+  VideoTable:
+    Properties:
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      # Add TTL for data lifecycle management if needed
+      TimeToLiveSpecification:
+        AttributeName: ExpirationTime
+        Enabled: true
+      # Add encryption
+      SSESpecification:
+        SSEEnabled: true
+
+# Add environment variables for Lambda
+  VideoAPI:
+    Properties:
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref VideoTable
+          REGION: !Ref AWS::Region
+      # Add X-Ray tracing
+      Tracing: Active
+      # Add logging configuration
+      LoggingConfig:
+        LogFormat: JSON
+        LogGroup: !Sub "/aws/lambda/${AWS::StackName}-VideoAPI"
 Globals:
   Function:
     Timeout: 10
@@ -9,7 +74,7 @@ Globals:
 Parameters:
   S3BucketName:
     Type: String
-    Default: netflix-lite-frontend-unique
+    Default: !Sub "netflix-lite-${AWS::AccountId}-${AWS::Region}"
     Description: S3 bucket name for frontend hosting
 
 Resources:
@@ -17,7 +82,9 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref S3BucketName
-
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -25,9 +92,9 @@ Resources:
         RestrictPublicBuckets: true
 
   CloudFrontOriginAccessIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Type: AWS::CloudFront::OriginAccessIdentity
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
+      OriginAccessIdentityConfig:
         Comment: !Sub 'OAI for ${S3BucketName}'
 
   S3BucketPolicy:
@@ -35,12 +102,13 @@ Resources:
     Properties:
       Bucket: !Ref S3Bucket
       PolicyDocument:
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
+            Action: s3:GetObject
+            Resource: !Sub "${S3Bucket.Arn}/*"
             Principal:
-              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
-            Action: 's3:GetObject'
-            Resource: !Sub '${S3Bucket}/*'
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
 
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -68,6 +136,7 @@ Resources:
             ResponseCode: 200
             ResponsePagePath: /index.html
         PriceClass: PriceClass_100
+
   VideoAPI:
     Type: AWS::Serverless::Function
     Metadata:
@@ -100,8 +169,6 @@ Resources:
         - AttributeName: id
           KeyType: HASH
 
-
-
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint"
@@ -109,7 +176,9 @@ Outputs:
   S3BucketName:
     Description: "S3 Bucket Name for Frontend"
     Value: !Ref S3Bucket
-
+  S3WebsiteURL:
+    Description: "S3 Website URL"
+    Value: !GetAtt S3Bucket.WebsiteURL
   CloudFrontURL:
     Description: "CloudFront Distribution URL"
     Value: !Sub "https://${CloudFrontDistribution.DomainName}"
