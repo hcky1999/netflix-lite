@@ -31,7 +31,7 @@ jobs:
           cd backend
           sam build
 
-      - name: 🚀 Deploy SAM Stack
+      - name: 🚀 Deploy SAM Stack with CloudFront
         run: |
           cd backend
-          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --resolve-image-repos
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --resolve-image-repos --parameter-overrides S3BucketName=netflix-lite-frontend-bucket
