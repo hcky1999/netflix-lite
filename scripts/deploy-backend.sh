@@ -13,6 +13,6 @@ cd backend
 sam build
 
 echo "🚀 Deploying with CloudFront..."
-sam deploy --parameter-overrides S3BucketName=netflix-lite-frontend-bucket
+sam deploy --parameter-overrides S3BucketName=netflix-lite-frontend-$(date +%s)
 
 echo "✅ Deployment complete!"

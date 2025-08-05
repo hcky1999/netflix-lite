@@ -34,4 +34,4 @@ jobs:
       - name: 🚀 Deploy SAM Stack with CloudFront
         run: |
           cd backend
-          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides S3BucketName=netflix-lite-frontend-bucket
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides S3BucketName=netflix-lite-frontend-${{ github.run_number }}

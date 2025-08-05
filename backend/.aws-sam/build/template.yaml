@@ -7,7 +7,7 @@ Globals:
 Parameters:
   S3BucketName:
     Type: String
-    Default: netflix-lite-frontend-bucket
+    Default: netflix-lite-frontend-unique
     Description: S3 bucket name for frontend hosting
 Resources:
   VideoAPI:
