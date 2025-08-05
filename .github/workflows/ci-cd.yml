@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'backend/**'
+      - 'frontend/**'
       - '.github/workflows/ci-cd.yml'
 
 jobs:
@@ -34,4 +35,20 @@ jobs:
       - name: 🚀 Deploy SAM Stack with CloudFront
         run: |
           cd backend
-          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides S3BucketName=netflix-lite-${{ github.run_number }}
+
+      - name: 📦 Build Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      - name: 🌐 Deploy Frontend to S3
+        run: |
+          BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name netflix-lite-stack --query 'Stacks[0].Outputs[?OutputKey==`S3BucketName`].OutputValue' --output text)
+          aws s3 sync frontend/dist/ s3://$BUCKET_NAME --delete
+
+      - name: 🔄 Invalidate CloudFront Cache
+        run: |
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name netflix-lite-stack --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' --output text)
+          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
