@@ -5,6 +5,11 @@ Description: Netflix Lite API – Docker-based Lambda backend
 Globals:
   Function:
     Timeout: 10
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
 
 Parameters:
   S3BucketName:
@@ -85,6 +90,10 @@ Resources:
           Properties:
             Path: /videos
             Method: get
+            RestApiId: !Ref ServerlessRestApi
+      Environment:
+        Variables:
+          CORS_ORIGIN: '*'
       Policies:
         - DynamoDBReadPolicy:
             TableName: Videos
