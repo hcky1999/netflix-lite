@@ -119,14 +119,14 @@ This ensures dependencies and source code are bundled into a Lambda-compatible c
 ---
 
 ## 📎 Live Demo
-🔒 **Secure HTTPS Access**: [Netflix Lite App via CloudFront](https://your-cloudfront-domain.cloudfront.net)
+🔒 **Secure HTTPS Access**: [Netflix Lite App via CloudFront](https://d2dk6x1lzv67g0.cloudfront.net)
 
 ## 🛠️ Quick Start
 
 ### Deploy Backend
 ```bash
 cd backend
-sam build
+sam build 
 sam deploy --parameter-overrides S3BucketName=your-bucket-name
 ```
 
